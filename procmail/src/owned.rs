@@ -1,4 +1,4 @@
-use mailparse::{ParsedMail};
+use mailparse::ParsedMail;
 use std::error::Error;
 
 #[derive(Debug)]
@@ -41,11 +41,20 @@ pub fn to_owned(mail: ParsedMail) -> Result<Mail, Box<dyn Error>> {
 }
 
 fn to_owned_part(mail: ParsedMail) -> Result<MailPart, Box<dyn Error>> {
-    if mail.subparts.len() > 0 {
-        Ok(MailPart { body: None, parts: mail.subparts.into_iter().map(to_owned_part).collect::<Result<_, _>>()? })
-    } else {
-        // TODO differentiate between strings and binary data; now going conservative
-        Ok(MailPart { body: mail.get_body_raw().ok().map(Body::Binary), parts: vec![] })
-    }
+    Ok(MailPart {
+        body: extract_body(&mail),
+        parts: mail
+            .subparts
+            .into_iter()
+            .map(to_owned_part)
+            .collect::<Result<_, _>>()?,
+    })
 }
 
+fn extract_body(mail: &ParsedMail) -> Option<Body> {
+    if mail.ctype.mimetype.starts_with("text/") {
+        mail.get_body().ok().map(Body::Text)
+    } else {
+        mail.get_body_raw().ok().map(Body::Binary)
+    }
+}
