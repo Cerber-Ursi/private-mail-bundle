@@ -2,9 +2,9 @@ use mailparse::ParsedMail;
 use std::error::Error;
 
 #[derive(Debug)]
-pub enum Body {
-    Text(String),
-    Binary(Vec<u8>),
+pub struct Body {
+    content: Vec<u8>,
+    name: String,
 }
 
 #[derive(Debug)]
@@ -52,9 +52,19 @@ fn to_owned_part(mail: ParsedMail) -> Result<MailPart, Box<dyn Error>> {
 }
 
 fn extract_body(mail: &ParsedMail) -> Option<Body> {
-    if mail.ctype.mimetype.starts_with("text/") {
-        mail.get_body().ok().map(Body::Text)
+    let content = mail
+        .get_body_raw()
+        .ok()
+        .and_then(|v| if v.len() > 0 { Some(v) } else { None });
+    let name = if let Some(filename) = mail.ctype.params.get("filename") {
+        filename
     } else {
-        mail.get_body_raw().ok().map(Body::Binary)
+        match mail.ctype.mimetype.as_str() {
+            "text/plain" => "file.txt",
+            "text/html" => "file.html",
+            _ => "file",
+        }
     }
+    .to_owned();
+    content.map(|content| Body { content, name })
 }
