@@ -10,7 +10,7 @@ pub fn write_json(mail: Mail) -> Result<(), Box<dyn Error>> {
     let id = mail.find_header("Message-ID").ok_or("No ID found")?;
     let mut path: PathBuf = [
         "mailbox",
-        recipient.split("@").next().ok_or("Recipient is empty")?,
+        recipient.split('@').next().ok_or("Recipient is empty")?,
         &id,
     ].iter().collect();
     create_dir_all(&path)?;
@@ -24,7 +24,7 @@ fn write_part(base_path: &Path, mail: &MailPart) -> Result<(), Box<dyn Error>> {
     if let Some(body) = &mail.body {
         let path = base_path.join(&body.name);
         create_dir_all(&path.with_file_name(""))?;
-        File::create(path)?.write(&body.content)?;
+        File::create(path)?.write_all(&body.content)?;
     }
     if let Some(parts) = &mail.parts {
         for part in parts.inner().iter() {
