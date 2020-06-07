@@ -1,6 +1,6 @@
 use mailparse::ParsedMail;
+use serde::{Deserialize, Serialize};
 use std::error::Error;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Body {
@@ -49,7 +49,10 @@ pub struct Mail {
 
 impl Mail {
     pub fn find_header(&self, key: &str) -> Option<String> {
-        self.headers.iter().find(|h| h.key == key).map(|h| h.value.clone())
+        self.headers
+            .iter()
+            .find(|h| h.key == key)
+            .map(|h| h.value.clone())
     }
 }
 
@@ -93,7 +96,7 @@ fn extract_body(mail: &ParsedMail, path: &str) -> Option<Body> {
     let content = mail
         .get_body_raw()
         .ok()
-        .and_then(|v| if v.len() > 0 { Some(v) } else { None });
+        .and_then(|v| if v.is_empty() { None } else { Some(v) });
     let name = if let Some(filename) = mail.ctype.params.get("filename") {
         filename.to_owned()
     } else {

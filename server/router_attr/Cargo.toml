@@ -1,13 +1,15 @@
 [package]
-name = "procmail"
+name = "router_attr"
 version = "0.1.0"
-authors = ["dev"]
+authors = ["k.bagrov <k.bagrov@g.nsu.ru>"]
 edition = "2018"
+
+[lib]
+proc_macro = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rust_common = { "path" = "../rust_common" }
-mailparse = "0.10.4"
-serde_json = "1.0"
-urlencoding = "1.0.0"
+proc-macro2 = "1.0.13"
+syn = "1.0.22"
+quote = "1.0.5"

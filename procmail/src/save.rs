@@ -4,10 +4,11 @@ use std::fs::{File, create_dir_all};
 use std::path::{Path, PathBuf};
 use std::io::Write;
 use serde_json::to_string;
+use urlencoding::encode;
 
 pub fn write_json(mail: Mail) -> Result<(), Box<dyn Error>> {
     let recipient = mail.find_header("To").ok_or("No To header found")?;
-    let id = mail.find_header("Message-ID").ok_or("No ID found")?;
+    let id = encode(&mail.find_header("Message-ID").ok_or("No ID found")?);
     let mut path: PathBuf = [
         "mailbox",
         recipient.split('@').next().ok_or("Recipient is empty")?,

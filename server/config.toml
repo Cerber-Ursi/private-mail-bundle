@@ -1,0 +1,4 @@
+mailbox_path = "../procmail/mailbox/"
+web_path = "../web/dist/"
+port = 8080
+verbosity = 3
